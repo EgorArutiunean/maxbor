@@ -1,0 +1,19 @@
+[Unit]
+Description=maxbor Telegram to MAX bridge
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/maxbor
+EnvironmentFile=/opt/maxbor/.env
+ExecStart=/opt/maxbor/venv/bin/python /opt/maxbor/app.py
+Restart=always
+RestartSec=5
+
+# Set your Linux user here
+User=YOUR_LINUX_USER
+Group=YOUR_LINUX_USER
+
+[Install]
+WantedBy=multi-user.target

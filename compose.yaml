@@ -1,0 +1,32 @@
+services:
+  maxbor-bridge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:?TELEGRAM_BOT_TOKEN is required}
+      MAX_BOT_TOKEN: ${MAX_BOT_TOKEN:?MAX_BOT_TOKEN is required}
+      SOURCE_TG_CHAT: ${SOURCE_TG_CHAT:?SOURCE_TG_CHAT is required}
+      TARGET_MAX_CHAT: ${TARGET_MAX_CHAT:?TARGET_MAX_CHAT is required}
+      INSTANCE_NAME: ${INSTANCE_NAME:-maxbor}
+      POLL_TIMEOUT: ${POLL_TIMEOUT:-30}
+      MEDIA_GROUP_WAIT_SEC: ${MEDIA_GROUP_WAIT_SEC:-1.5}
+      MAX_ATTACHMENT_SIZE_BYTES: ${MAX_ATTACHMENT_SIZE_BYTES:-52428800}
+      HEALTHCHECK_ENABLED: ${HEALTHCHECK_ENABLED:-true}
+      HEALTHCHECK_HOST: ${HEALTHCHECK_HOST:-0.0.0.0}
+      HEALTHCHECK_PORT: ${HEALTHCHECK_PORT:-8080}
+      HEALTHCHECK_STALE_AFTER_SEC: ${HEALTHCHECK_STALE_AFTER_SEC:-120}
+      STATE_FILE: ${STATE_FILE:-/app/data/maxbor-state.json}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - maxbor_bridge_state:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os, sys, urllib.request; port=os.getenv('HEALTHCHECK_PORT', '8080'); url=f'http://127.0.0.1:{port}/healthz'; sys.exit(0 if urllib.request.urlopen(url, timeout=3).getcode() == 200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  maxbor_bridge_state: {}

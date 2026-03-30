@@ -1,0 +1,6 @@
+venv/
+__pycache__/
+tests/
+tests_artifacts/
+.env
+*.pyc
