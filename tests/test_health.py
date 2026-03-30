@@ -19,6 +19,18 @@ class HealthTests(unittest.TestCase):
         self.assertFalse(snapshot["healthy"])
         self.assertTrue(snapshot["stale"])
 
+    def test_health_state_uses_last_poll_activity_for_freshness(self) -> None:
+        state = HealthState(stale_after_sec=1)
+        state.mark_started()
+        time.sleep(0.7)
+        state.mark_poll()
+        time.sleep(0.7)
+
+        snapshot = state.snapshot()
+
+        self.assertTrue(snapshot["healthy"])
+        self.assertFalse(snapshot["stale"])
+
     def test_health_server_serves_healthz(self) -> None:
         state = HealthState(stale_after_sec=60)
         state.mark_started()

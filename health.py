@@ -60,9 +60,10 @@ class HealthState:
             snapshot = HealthSnapshot(**asdict(self._snapshot))
 
         now = time.time()
+        freshness_ts = snapshot.last_poll_at or snapshot.last_success_at or snapshot.started_at
         is_stale = (
-            snapshot.last_success_at is not None
-            and now - snapshot.last_success_at > self._stale_after_sec
+            freshness_ts is not None
+            and now - freshness_ts > self._stale_after_sec
         )
         healthy = not snapshot.shutting_down and snapshot.status in {"starting", "ok"} and not is_stale
 
@@ -70,6 +71,7 @@ class HealthState:
         data["healthy"] = healthy
         data["stale"] = is_stale
         data["now"] = now
+        data["freshness_ts"] = freshness_ts
         data["stale_after_sec"] = self._stale_after_sec
         return data
 
